@@ -1,12 +1,18 @@
-简单的微信公众号开发扩展包
--------
+简单的微信公众号开发扩展包wechat
+===================
+
 安装
+------------
+
 ```
 composer require linyuee/wechat
 ```
 集成了微信授权登录，jssdk签名，自定义公众号菜单，微信支付等功能，可能是最适合微信小白开发的包了
 
-####1、微信授权
+使用
+------------
+
+#### 1、微信授权
 
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
@@ -18,14 +24,14 @@ $wechat = new \Linyuee\Wechat('appid','secret');
 $data = $wechat->get_userinfo($code);
 ```
 
-####2、jssdk签名
+#### 2、jssdk签名
 
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
 $data=$wechat->get_js_sdk_sign('签名的url');
 ```
 
-####3、微信支付
+#### 3、微信支付
 
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
