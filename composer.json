@@ -1,0 +1,24 @@
+{
+    "name": "linyuee/wechat",
+    "description": "a simple wechat library",
+    "version": "1.0.1",
+    "require": {
+        "php": ">=7.0",
+        "laravel/framework": ">=5.1"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Linyuee\\": "src/"
+
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "linyue",
+            "email": "769353695@qq.com"
+        }
+    ]
+}
