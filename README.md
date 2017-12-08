@@ -26,7 +26,7 @@ $input = array(
             'out_trade_no'=>random_int(100000,99999999),
             'total_fee'=>10,
             'notify_url'=>'$notify_url',
-            'openid'=>$redis->get('openid'),
+            'openid'=>$openid,//发起支付用户的openid
         );
 $res = $wechat->pay($input,$key)->js_api_pay();//key为商户平台里面的key
 ```
