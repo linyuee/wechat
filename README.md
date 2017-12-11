@@ -1,6 +1,10 @@
 简单的微信公众号开发扩展包wechat
 ===================
 
+简介
+------------
+这是一个方便微信开发新手的开发的包，你们甚至可以不用知道其中的逻辑，而且使用非常方便，如果觉得对你有用的话请支持一下点个star
+
 安装
 ------------
 
@@ -46,3 +50,33 @@ $input = array(
         );
 $res = $wechat->pay($input,$key)->js_api_pay();//key为商户平台里面的key
 ```
+
+#### 4、自定义公众号菜单
+```
+$wechat = new \Linyuee\Wechat('appid','secret');
+$menu = array(
+            'button'=>array(
+                [
+                    'name'=>'公司主页',
+                    'type'=>'view',
+                    'url'=>'http://api.test.com'
+                ],
+                [
+                    'name'=>'项目主页',
+                    'type'=>'view',
+                    'url'=>'http://api.test.com/api/test',
+                ]
+            ),
+        );
+$wechat->set_menu($menu)
+```
+如果返回{"errcode":0,"errmsg":"ok"}便是设置成功
+
+
+#### 5、生成带参数公众号二维码
+```
+$wechat = new \Linyuee\Wechat('appid','secret');
+$data = $wechat->get_qr_code(12);
+```
+
+

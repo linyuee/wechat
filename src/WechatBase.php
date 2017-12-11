@@ -17,16 +17,36 @@ abstract class WechatBase
     const ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/sns/oauth2/access_token';//授权信息
     const REFRESH_TOKEN_URL = 'https://api.weixin.qq.com/sns/oauth2/refresh_token';
     const USERINFO_URL = 'https://api.weixin.qq.com/sns/userinfo';//获取用户信息
+    const QRCODE_URL = 'https://api.weixin.qq.com/cgi-bin/qrcode/create';
+    const MENU_URL = 'https://api.weixin.qq.com/cgi-bin/menu/create';
+
     protected function __construct($appid,$secret)
     {
         $this->appid = $appid;
         $this->secret = $secret;
     }
 
+    public function index($data,$token)
+    {
+        $signature = $data['signature'];
+        $timestamp = $data['timestamp'];
+        $nonce = $data['nonce'];
+        $echostr = $data['echostr'];
+        $tmpArr = array($token, $timestamp, $nonce);
+        sort($tmpArr, SORT_STRING);
+        $tmpStr = implode($tmpArr);
+        $tmpStr = sha1($tmpStr);
+        if ($tmpStr == $signature && isset($echostr)) {
+            return $echostr;
+        }
+        //回复事件或消息
+        return 0;
+    }
+
     protected function userinfo_auth($redirect_url,$state = null){
         $url = self::AUTH_URL.'?appid='.$this->appid
             .'&redirect_uri='.urlencode($redirect_url).'&response_type=code&scope=snsapi_userinfo&state='.$state.'#wechat_redirect';
-        header("location: ".$url);
+        return header("location: ".$url);
     }
 
     protected function base_auth($redirect_url,$state = null){
@@ -47,7 +67,7 @@ abstract class WechatBase
     protected function get_auth_info($code){
         $get_token_url = self::ACCESS_TOKEN_URL .'?appid='.$this->appid
             .'&secret='.$this->secret.'&code='.$code.'&grant_type=authorization_code';
-        $res = \Pingqu\Http\HttpHelper::curl($get_token_url);
+        $res = \Linyuee\Http\HttpHelper::curl($get_token_url);
         $data = json_decode($res->getBody(),true);
         if(empty($data['refresh_token'])){
             return false;
@@ -58,7 +78,7 @@ abstract class WechatBase
     protected function refresh_access_token($refresh_token){
         $refresh_token_url = self::REFRESH_TOKEN_URL."?appid=".$this->appid
             ."&grant_type=refresh_token&refresh_token=".$refresh_token."";
-        $res = \Pingqu\Http\HttpHelper::curl($refresh_token_url);
+        $res = \Linyuee\Http\HttpHelper::curl($refresh_token_url);
         return json_decode($res->getBody(),true);
     }
 
@@ -82,18 +102,17 @@ abstract class WechatBase
 
     protected function get_user_info($access_token,$openid){
         $get_user_info_url = self::USERINFO_URL.'?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN';
-        $res = \Pingqu\Http\HttpHelper::curl($get_user_info_url);
+        $res = \Linyuee\Http\HttpHelper::curl($get_user_info_url);
         return json_decode($res->getBody(),true);
     }
 
 
     protected function js_sdk_sign($url){
         $jsapiTicket = $this->get_js_api_ticket();
-        \Log::info($jsapiTicket);
         $timestamp = time();
         $nonceStr = Helper::createNonceStr();
         $string = "jsapi_ticket=".$jsapiTicket."&noncestr=".$nonceStr.'&timestamp='.$timestamp."&url=".$url."";
-        //echo $string1;
+
         $signature = sha1($string);
         $signPackage = array(
             "appId"     => $this->appid,
@@ -157,10 +176,10 @@ abstract class WechatBase
     protected function set_menu($menu)
     {
         $access_token = $this->get_access_token();
-        $post_url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=".$access_token."";
+        $post_url = self::MENU_URL."?access_token=".$access_token."";
         $ch = curl_init($post_url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS,$menu   );
+        curl_setopt($ch, CURLOPT_POSTFIELDS,$menu);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/json',
@@ -168,7 +187,7 @@ abstract class WechatBase
         );
         $response = curl_exec($ch);
         $response = json_decode($response, true);
-        return $response['errcode'] == 0 ? 1 : 0;
+        return $response;
     }
 
 
@@ -182,6 +201,23 @@ abstract class WechatBase
         $url = 'https://api.weixin.qq.com/cgi-bin/media/get?access_token='.$access_token.'&media_id='.$media_id;
         $content = file_get_contents($url);
         return $content;
+    }
+
+    /**
+     * 生成带参数的公众号二维码
+     * @param $id
+     * @return string
+     */
+    public function get_qr_code($id)
+    {
+        $access_token = $this->get_access_token();
+        $qrcode = '{"action_name": "QR_LIMIT_SCENE", "action_info": {"scene": {"scene_id": '.$id.'}}}';
+        $url = self::QRCODE_URL."?access_token=$access_token";
+        $result = Helper::https_post($url,$qrcode);
+        $jsoninfo = json_decode($result, true);
+        $ticket = $jsoninfo["ticket"];
+        $get_url="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=".urlencode($ticket);
+        return $get_url;
     }
 
 
