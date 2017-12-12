@@ -1,7 +1,7 @@
 {
     "name": "linyuee/wechat",
-    "description": "a simple wechat library",
-    "version": "1.0.1",
+    "description": "一个非常简单的微信开发工具包",
+    "version": "1.0.2",
     "require": {
         "php": ">=7.0",
         "laravel/framework": ">=5.1",
