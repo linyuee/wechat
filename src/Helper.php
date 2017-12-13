@@ -154,4 +154,24 @@ class Helper
     }
 
 
+    public static function get_access_token(){
+        if (!file_exists(dirname(__FILE__).'/access_token')){
+            return false;
+        }
+        $data = file_get_contents(dirname(__FILE__).'/access_token');
+        if (empty($data)){
+            return false;
+        }
+        $data = explode('=>',$data);
+        if ($data[1]<time()){
+            return false;
+        }
+        return base64_decode($data[0]);
+    }
+
+    public static function set_access_token($access_token){
+        file_put_contents(dirname(__FILE__).'/access_token',base64_encode($access_token).'=>'.(time()+7200));
+    }
+
+
 }
