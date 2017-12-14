@@ -8,22 +8,33 @@
 
 namespace Linyuee;
 
+use Linyuee\Cache\CacheTrait;
+
 
 abstract class WechatBase
 {
+    use CacheTrait;
+
     protected $appid;
     protected $secret;
     const AUTH_URL = 'https://open.weixin.qq.com/connect/oauth2/authorize';//授权
+
     const ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/sns/oauth2/access_token';//授权信息
+
     const REFRESH_TOKEN_URL = 'https://api.weixin.qq.com/sns/oauth2/refresh_token';
+
     const USERINFO_URL = 'https://api.weixin.qq.com/sns/userinfo';//获取用户信息
+
     const QRCODE_URL = 'https://api.weixin.qq.com/cgi-bin/qrcode/create';
+
     const MENU_URL = 'https://api.weixin.qq.com/cgi-bin/menu/create';
+
 
     protected function __construct($appid,$secret)
     {
         $this->appid = $appid;
         $this->secret = $secret;
+
     }
 
     public function index($data,$token)
@@ -136,15 +147,17 @@ abstract class WechatBase
 
     public  function get_access_token()
     {
-        $access_token = \Linyuee\Helper::get_access_token();
-        if ($access_token){
-            return $access_token;
+        //缓存access_token
+        if ($this->cache && $data = $this->cache->fetch('access_token')) {
+            return $data;
         }
         $token_access_url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
         $res = file_get_contents($token_access_url); //获取文件内容或获取网络请求的内容
         $result = json_decode($res, true); //接受一个 JSON 格式的字符串并且把它转换为 PHP 变量
         $access_token = $result['access_token'];
-        \Linyuee\Helper::set_access_token($access_token);
+        if ($this->cache){
+            $this->cache->save('access_token', $access_token, 7200);
+        }
         return $access_token;
     }
 
@@ -225,6 +238,14 @@ abstract class WechatBase
         $get_url="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=".urlencode($ticket);
         return $get_url;
     }
+
+    public function get_users(){
+        $access_token = $this->get_access_token();
+        $url = "https://api.weixin.qq.com/cgi-bin/user/get?access_token=".$access_token;
+        $result = Helper::https_post($url);
+        return $result;
+    }
+
 
 
 }

@@ -56,4 +56,10 @@ class Wechat extends WechatBase
     }
 
 
+    public function get_users()
+    {
+        return json_decode(parent::get_users(),true);
+    }
+
+
 }

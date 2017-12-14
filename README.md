@@ -11,11 +11,52 @@
 ```
 composer require linyuee/wechat
 ```
-集成了微信授权登录，jssdk签名，自定义公众号菜单，微信支付等功能，可能是最适合微信小白开发的包了,并且
-已经为你缓存了access_token,你不用再担心频繁请求access_token的问题了。
+集成了微信授权登录，jssdk签名，自定义公众号菜单，微信支付等功能，可能是最适合微信小白开发的包了
 
 使用
 ------------
+#### 说明
+AccessToken 的有效期目前为 7200 秒，有请求次数限制，重复获取将导致上次获取的 AccessToken 失效，
+因此有必要缓存AccessToken，你如果只是测试也可以不使用，我们使用doctrine/cache包作为依赖，在初始化Wechat类
+的时候进行注入，目前的缓存驱动有 file、APC、redis、memcache、memcached、xcache。
+不理解请移步http://blog.csdn.net/wolehao/article/details/17733289
+
+Filesystem
+```
+$cacheDriver = new \Doctrine\Common\Cache\FilesystemCache('./cacheDir');
+```
+APC
+```
+$cacheDriver = new \Doctrine\Common\Cache\ApcCache();
+```
+Memcache
+```
+$memcache = new Memcache();
+$memcache->connect('127.0.0.1', 11211);
+
+$cacheDriver = new \Doctrine\Common\Cache\MemcacheCache();
+$cacheDriver->setMemcache($memcache);
+```
+Mamcached
+```
+$memcached = new Memcached();
+$memcached->addServer('127.0.0.1', 11211);
+
+$cacheDriver = new \Doctrine\Common\Cache\MemcachedCache();
+$cacheDriver->setMemcached($memcached);
+```
+Xcache
+```
+$cacheDriver = new \Doctrine\Common\Cache\XcacheCache();
+Redis
+
+$redis = new Redis();
+$redis->connect('127.0.0.1', 6379);
+
+$cacheDriver = new \Doctrine\Common\Cache\RedisCache();
+$cacheDriver->setRedis($redis);
+
+```
 
 #### 1、微信授权
 
@@ -26,6 +67,7 @@ $whchat->auth($callback_url,$attach);//$callback_url授权后回调的地址，$
 然后你需要在回调接口获取用户信息,并接收微信服务器发送的$code和$state
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
+$wechat->setCache($cacheDriver);
 $data = $wechat->get_userinfo($code);
 ```
 
@@ -55,6 +97,7 @@ $res = $wechat->pay($input,$key)->js_api_pay();//key为商户平台里面的key
 #### 4、自定义公众号菜单
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
+$wechat->setCache($cacheDriver);
 $menu = array(
             'button'=>array(
                 [
@@ -80,7 +123,15 @@ $wechat = new \Linyuee\Wechat('appid','secret');
 $data = $wechat->get_qr_code(12);
 ```
 
-#### 6、微信接入和自动回复
+#### 6、获取全部关注者的openid
+```
+$wechat = new Wechat('wxf1f0507020402ba2','6c1344bd51a23b2f2f024f050a89bc77');
+$wechat->setCache($cacheDriver);
+var_dump($wechat->get_users());
+
+```
+
+#### 7、微信接入和自动回复
 
 要使用该功能，需要到公众平台配置相关信息，首次启用服务器配置要填一个url和token。假如你的服务器地址为
 http:://test.com,然后你在服务器的根目录有一个wechat.php的文件，这时你只需要在wechat.php写入

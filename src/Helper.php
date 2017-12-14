@@ -138,7 +138,7 @@ class Helper
     }
 
 
-    public static function https_post($url, $data){
+    public static function https_post($url, $data = null){
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);

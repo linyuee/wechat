@@ -1,11 +1,12 @@
 {
     "name": "linyuee/wechat",
     "description": "一个非常简单的微信开发工具包",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "require": {
         "php": ">=7.0",
         "laravel/framework": ">=5.1",
-        "linyuee/core": "1.0.*"
+        "linyuee/core": "1.0.*",
+        "doctrine/cache": "^1.6"
     },
     "require-dev": {
     },
