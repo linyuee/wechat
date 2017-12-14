@@ -75,6 +75,7 @@ $data = $wechat->get_userinfo($code);
 
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
+$wechat->setCache($cacheDriver);
 $data=$wechat->get_js_sdk_sign('签名的url');
 ```
 
@@ -120,6 +121,7 @@ $wechat->set_menu($menu)
 #### 5、生成带参数公众号二维码
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
+$wechat->setCache($cacheDriver);
 $data = $wechat->get_qr_code(12);
 ```
 
