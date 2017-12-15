@@ -24,11 +24,11 @@ class Wechat extends WechatBase
         return parent::base_auth($redirect_url,$state);
     }
 
-    public function get_userinfo($code)
+    public function get_userinfo_by_code($code)
     {
         $auth_info = $this->get_auth_info($code);
 
-        $user_info = $this->get_user_info($auth_info['access_token'],$auth_info['openid']);
+        $user_info = $this->get_userinfo($auth_info['access_token'],$auth_info['openid']);
         return $user_info;
     }
     //获取js_sdk签名
@@ -38,6 +38,7 @@ class Wechat extends WechatBase
     //设置公众号菜单
     public function set_menu($menu)
     {
+        var_dump($menu);
         if (!is_array($menu)){
             throw new ApiException('参数必须为数组');
         }
@@ -59,6 +60,11 @@ class Wechat extends WechatBase
     public function get_users()
     {
         return json_decode(parent::get_users(),true);
+    }
+
+
+    public function get_user_info($openid){
+        return parent::get_user_info($openid);
     }
 
 

@@ -9,6 +9,8 @@
 namespace Linyuee;
 
 use Linyuee\Cache\CacheTrait;
+use Linyuee\Exception\ApiException;
+use Linyuee\Util\Helper;
 
 
 abstract class WechatBase
@@ -19,15 +21,19 @@ abstract class WechatBase
     protected $secret;
     const AUTH_URL = 'https://open.weixin.qq.com/connect/oauth2/authorize';//授权
 
-    const ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/sns/oauth2/access_token';//授权信息
+    const AUTH_INFO_URL = 'https://api.weixin.qq.com/sns/oauth2/access_token';//授权信息
 
     const REFRESH_TOKEN_URL = 'https://api.weixin.qq.com/sns/oauth2/refresh_token';
 
-    const USERINFO_URL = 'https://api.weixin.qq.com/sns/userinfo';//获取用户信息
+    const AUTH_USERINFO_URL = 'https://api.weixin.qq.com/sns/userinfo';//获取授权用户信息
 
     const QRCODE_URL = 'https://api.weixin.qq.com/cgi-bin/qrcode/create';
 
     const MENU_URL = 'https://api.weixin.qq.com/cgi-bin/menu/create';
+
+    const USER_INFO_URL = 'https://api.weixin.qq.com/cgi-bin/user/info';
+
+    const ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token';
 
 
     protected function __construct($appid,$secret)
@@ -37,22 +43,6 @@ abstract class WechatBase
 
     }
 
-    public function index($data,$token)
-    {
-        $signature = $data['signature'];
-        $timestamp = $data['timestamp'];
-        $nonce = $data['nonce'];
-        $echostr = $data['echostr'];
-        $tmpArr = array($token, $timestamp, $nonce);
-        sort($tmpArr, SORT_STRING);
-        $tmpStr = implode($tmpArr);
-        $tmpStr = sha1($tmpStr);
-        if ($tmpStr == $signature && isset($echostr)) {
-            return $echostr;
-        }
-        //回复事件或消息
-        return 0;
-    }
 
     protected function userinfo_auth($redirect_url,$state = null){
         $url = self::AUTH_URL.'?appid='.$this->appid
@@ -76,7 +66,7 @@ abstract class WechatBase
           'scope' => 'snsapi_userinfo',)
      */
     protected function get_auth_info($code){
-        $get_token_url = self::ACCESS_TOKEN_URL .'?appid='.$this->appid
+        $get_token_url = self::AUTH_INFO_URL .'?appid='.$this->appid
             .'&secret='.$this->secret.'&code='.$code.'&grant_type=authorization_code';
         $res = \Linyuee\Http\HttpHelper::curl($get_token_url);
         $data = json_decode($res->getBody(),true);
@@ -97,23 +87,11 @@ abstract class WechatBase
     /*
      * 获取用户信息
      * 参数：access_token,openid
-     * 返回 array(
-     *   'openid' => 'ogzUjwMevWmSnr__y9aOMVCVvU1g',
-      'nickname' => '小楼听风雨',
-      'sex' => 1,
-      'language' => 'zh_CN',
-      'city' => '汕头',
-      'province' => '广东',
-      'country' => '中国',
-      'headimgurl' => 'http://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83erw3XAK4U4ubvcnDMZANDvibs8VDEGGvJQMQ0NCbMxUxH6Fkac7DrAEjRYz6xLz5NNoz8yLiaibBoxmQ/0',
-      'privilege' =>
-      array (
-        ),
-    )
+     * 返回
      */
 
-    protected function get_user_info($access_token,$openid){
-        $get_user_info_url = self::USERINFO_URL.'?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN';
+    protected function get_userinfo($access_token,$openid){
+        $get_user_info_url = self::AUTH_USERINFO_URL.'?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN';
         $res = \Linyuee\Http\HttpHelper::curl($get_user_info_url);
         return json_decode($res->getBody(),true);
     }
@@ -140,6 +118,7 @@ abstract class WechatBase
         $access_token = $this->get_access_token();
         $jsapi_ticket_url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&access_token=".$access_token."";
         $res = file_get_contents($jsapi_ticket_url); //获取文件内容或获取网络请求的内容
+        $this->handler($res,__FUNCTION__);
         $result = json_decode($res, true); //接受一个 JSON 格式的字符串并且把它转换为 PHP 变量
         $jsapi_ticket = $result['ticket'];
         return $jsapi_ticket;
@@ -149,9 +128,10 @@ abstract class WechatBase
     {
         //缓存access_token
         if ($this->cache && $data = $this->cache->fetch('access_token')) {
+            //var_dump($data);
             return $data;
         }
-        $token_access_url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
+        $token_access_url = self::ACCESS_TOKEN_URL."?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
         $res = file_get_contents($token_access_url); //获取文件内容或获取网络请求的内容
         $result = json_decode($res, true); //接受一个 JSON 格式的字符串并且把它转换为 PHP 变量
         $access_token = $result['access_token'];
@@ -166,6 +146,7 @@ abstract class WechatBase
         $access_token = $this->get_access_token();
         $jsapi_ticket_url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&access_token=".$access_token."";
         $res = file_get_contents($jsapi_ticket_url); //获取文件内容或获取网络请求的内容
+        $this->handler($res,__FUNCTION__);
         $result = json_decode($res, true); //接受一个 JSON 格式的字符串并且把它转换为 PHP 变量
         $jsapi_ticket = $result['ticket'];
         return $jsapi_ticket;
@@ -205,6 +186,7 @@ abstract class WechatBase
                 'Content-Length: ' . strlen($menu))
         );
         $response = curl_exec($ch);
+        $this->handler($response,__FUNCTION__,$menu);
         $response = json_decode($response, true);
         return $response;
     }
@@ -233,6 +215,7 @@ abstract class WechatBase
         $qrcode = '{"action_name": "QR_LIMIT_SCENE", "action_info": {"scene": {"scene_id": '.$id.'}}}';
         $url = self::QRCODE_URL."?access_token=$access_token";
         $result = Helper::https_post($url,$qrcode);
+        $this->handler($result,__FUNCTION__,$id);
         $jsoninfo = json_decode($result, true);
         $ticket = $jsoninfo["ticket"];
         $get_url="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=".urlencode($ticket);
@@ -243,9 +226,28 @@ abstract class WechatBase
         $access_token = $this->get_access_token();
         $url = "https://api.weixin.qq.com/cgi-bin/user/get?access_token=".$access_token;
         $result = Helper::https_post($url);
-        return $result;
+        return $this->handler($result,__FUNCTION__);
     }
 
 
+    protected function get_user_info($openid){
+        $access_token = $this->get_access_token();
+        $get_user_info_url = self::USER_INFO_URL.'?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN';
+        $result = Helper::https_post($get_user_info_url);
+        return $this->handler($result,__FUNCTION__,$openid);
+
+    }
+
+
+    protected function handler($result,$function,$params = null){
+        $response = json_decode($result,true);
+        if (isset($response['errcode'])){
+            if ($response['errcode'] == 40001 && $this->cache){
+                $this->cache->delete('access_token');
+                return $this->$function($params);
+            }
+        }
+        return $result;
+    }
 
 }

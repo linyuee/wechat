@@ -6,7 +6,7 @@
  * Time: 下午3:45
  */
 
-namespace Linyuee;
+namespace Linyuee\Util;
 
 
 

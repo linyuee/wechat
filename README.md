@@ -68,7 +68,7 @@ $whchat->auth($callback_url,$attach);//$callback_url授权后回调的地址，$
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
 $wechat->setCache($cacheDriver);
-$data = $wechat->get_userinfo($code);
+$data = $wechat->get_userinfo_by_code($code);
 ```
 
 #### 2、jssdk签名
@@ -129,11 +129,21 @@ $data = $wechat->get_qr_code(12);
 ```
 $wechat = new Wechat('wxf1f0507020402ba2','6c1344bd51a23b2f2f024f050a89bc77');
 $wechat->setCache($cacheDriver);
-var_dump($wechat->get_users());
+$openids = $wechat->get_users();
+
+$userinfo = $wechat->get_user_info($openid);
 
 ```
 
-#### 7、微信接入和自动回复
+#### 7、根据openid获取用户信息
+
+```
+$wechat = new Wechat('wxf1f0507020402ba2','6c1344bd51a23b2f2f024f050a89bc77');
+$wechat->setCache($cacheDriver);
+$userinfo = $wechat->get_user_info($openid);
+
+```
+#### 8、微信接入和自动回复
 
 要使用该功能，需要到公众平台配置相关信息，首次启用服务器配置要填一个url和token。假如你的服务器地址为
 http:://test.com,然后你在服务器的根目录有一个wechat.php的文件，这时你只需要在wechat.php写入
