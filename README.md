@@ -83,16 +83,43 @@ $data=$wechat->get_js_sdk_sign('签名的url');
 
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
-$input = array(
+$input1 = array(  //
+            //必须参数
             'mch_id'=>'1900009851',
-            'attach'=>'testtest',//附加信息
             'body'=>'腾讯充值中心-QQ会员充值',
             'out_trade_no'=>random_int(100000,99999999),
             'total_fee'=>10,
             'notify_url'=>'$notify_url',
             'openid'=>$openid,//发起支付用户的openid
+            //非必须参数
+            'device_info'=>'',
+            'attach'=>'', //附加数据，回调时会返回
+            'time_start'=>'20091225091010',
+            'time_expire'=>'20091227091010',
+            'detail'=>'',
+            'goods_tag'=>'',
+            'scene_info'=>''         
         );
-$res = $wechat->pay($input,$key)->js_api_pay();//key为商户平台里面的key
+$input2 = array(
+            //必须参数
+            'mch_id'=>'1900009851',
+            'body'=>'腾讯充值中心-QQ会员充值',
+            'out_trade_no'=>random_int(100000,99999999),
+            'total_fee'=>10,
+            'notify_url'=>'$notify_url',
+            //非必须参数
+            'device_info'=>'',
+            'attach'=>'', //附加数据，回调时会返回
+            'time_start'=>'20091225091010',
+            'time_expire'=>'20091227091010',
+            'detail'=>'',
+            'goods_tag'=>'',
+            'scene_info'=>''
+        );
+//公众号支付
+$res = $wechat->pay($input1,$key)->jsapi_pay();//key为商户平台里面的key
+//app支付
+$res = $wechat->pay($input2,$key)->app_pay();
 ```
 
 #### 4、自定义公众号菜单

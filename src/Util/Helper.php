@@ -59,7 +59,7 @@ class Helper
      * @return string
      * @throws ApiException
      */
-    public static function ToXml($values)
+    public static function ArrayToXml($values)
     {
         if(!is_array($values)
             || count($values) <= 0)
@@ -78,6 +78,11 @@ class Helper
         }
         $xml.="</xml>";
         return $xml;
+    }
+
+    public static function XmlToArray($data){
+        $msg = (array)simplexml_load_string($data, 'SimpleXMLElement', LIBXML_NOCDATA);
+        return $msg;
     }
 
     /**
