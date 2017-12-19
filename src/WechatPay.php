@@ -19,12 +19,13 @@ class WechatPay
     private $secret;
     protected $data;
     protected $key;
-    const UNIFIED_ORDER_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder";
+    const UNIFIED_ORDER_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder";//统一下单
+    const QUERY_ORDER_URL = "https://api.mch.weixin.qq.com/pay/orderquery";//查询订单
     public function __construct($appid, $secret,$input,$key)
     {
         $this->appid = $appid;
         $this->secret = $secret;
-        $this->key;
+        $this->key = $key;
         if (!is_array($input)){
             throw new ApiException('数据格式错误');
         }
@@ -45,7 +46,6 @@ class WechatPay
         }
         $this->data = $input;
         $this->data['appid'] = $this->appid;
-        $this->data['secret'] = $this->secret;
         $this->data['spbill_create_ip'] = $_SERVER['SERVER_ADDR'];
     }
 
