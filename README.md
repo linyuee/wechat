@@ -120,6 +120,7 @@ $input2 = array(
 $res = $wechat->pay($input1,$key)->jsapi_pay();//key为商户平台里面的key
 //app支付
 $res = $wechat->pay($input2,$key)->app_pay();
+return $res;
 ```
 
 #### 4、自定义公众号菜单
