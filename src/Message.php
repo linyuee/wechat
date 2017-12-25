@@ -9,15 +9,15 @@
 namespace Linyuee;
 
 
-class WechatResponse
+class Message
 {
     protected $input;
     protected $token;
     protected $response;
     protected $welcome_response;
-    public function __construct($data,$token)
+    public function __construct($token)
     {
-        $this->input = $data;
+        $this->input = $_GET;
         $this->token = $token;
     }
 
@@ -61,7 +61,7 @@ class WechatResponse
 //            }
             if ($postObj->Event == 'subscribe'){
                 if ($this->welcome_response){
-                    $info = self::response_text($toUser, $fromUser, $time, $msgType,$this->welcome_response);
+                    $info = self::responseText($toUser, $fromUser, $time, $msgType,$this->welcome_response);
                     echo $info;exit();
                 }
             }
@@ -70,28 +70,28 @@ class WechatResponse
             $content = $postObj->Content;
             if (is_array($response)){
                 if (isset($response[(string)$content])){
-                    $info = self::response_text($toUser, $fromUser, $time, $msgType,$response[(string)$content]);
+                    $info = self::responseText($toUser, $fromUser, $time, $msgType,$response[(string)$content]);
                     echo $info;exit();
                 }
             }elseif (is_string($response)){
-                $info = self::response_text($toUser, $fromUser, $time, $msgType,$response);
+                $info = self::responseText($toUser, $fromUser, $time, $msgType,$response);
                 echo $info;exit();
             }
         }
 
     }
 
-    public function set_auto_reply($response){
+    public function setAutoReply($response){
         $this->response = $response;
         return $this;
     }
 
-    public function set_welcome_reply($response){
+    public function setWelcomeReply($response){
         $this->welcome_response = $response;
         return $this;
     }
 
-    protected static function response_text($toUser, $fromUser, $time, $msgType, $content){
+    protected static function responseText($toUser, $fromUser, $time, $msgType, $content){
         $template = "<xml>
                             <ToUserName><![CDATA[%s]]></ToUserName>
                             <FromUserName><![CDATA[%s]]></FromUserName>

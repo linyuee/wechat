@@ -10,7 +10,7 @@ use Linyuee\Exception\ApiException;
 class Wechat extends WechatBase
 {
 
-    public function __construct($appid,$secret)
+    public function __construct($appid,$secret = '')
     {
         parent::__construct($appid,$secret);
     }
@@ -19,12 +19,12 @@ class Wechat extends WechatBase
         return parent::userinfo_auth($redirect_url,$state);
     }
 
-    public function base_auth($redirect_url,$state = null)
+    public function baseAuth($redirect_url,$state = null)
     {
         return parent::base_auth($redirect_url,$state);
     }
 
-    public function get_userinfo_by_code($code)
+    public function getUserinfoByCode($code)
     {
         $auth_info = $this->get_auth_info($code);
 
@@ -32,38 +32,33 @@ class Wechat extends WechatBase
         return $user_info;
     }
     //获取js_sdk签名
-    public function get_js_sdk_sign($url){
+    public function getJsSdkSign($url){
         return $this->js_sdk_sign($url);
     }
     //设置公众号菜单
-    public function set_menu($menu)
+    public function setMenu($menu)
     {
-        var_dump($menu);
         if (!is_array($menu)){
             throw new ApiException('参数必须为数组');
         }
         $menu = json_encode($menu,JSON_UNESCAPED_UNICODE);//不转义中文
         return parent::set_menu($menu);
     }
-    //支付
-    public function pay($input,$key){
-        return new WechatPay($this->appid,$this->secret,$input,$key);
-    }
 
     //生成带参数二维码
-    public function get_qrcode($id)
+    public function getQrcode($id)
     {
         return parent::get_qr_code($id);
     }
 
 
-    public function get_users()
+    public function getUsers()
     {
         return json_decode(parent::get_users(),true);
     }
 
 
-    public function get_user_info($openid){
+    public function getUserInfo($openid){
         return parent::get_user_info($openid);
     }
 

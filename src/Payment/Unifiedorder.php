@@ -2,63 +2,34 @@
 /**
  * Created by PhpStorm.
  * User: yuelin
- * Date: 2017/12/6
- * Time: 下午3:06
+ * Date: 2017/12/22
+ * Time: 下午6:22
  */
-
-namespace Linyuee;
-
-
+namespace Linyuee\Payment;
 
 use Linyuee\Exception\ApiException;
+use Linyuee\Pay;
 use Linyuee\Util\Helper;
 
-class WechatPay
+class Unifiedorder
 {
-    private $appid;
-    private $secret;
-    protected $data;
-    protected $key;
+
     const UNIFIED_ORDER_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder";//统一下单
-    const QUERY_ORDER_URL = "https://api.mch.weixin.qq.com/pay/orderquery";//查询订单
-    public function __construct($appid, $secret,$input,$key)
+    //公众号支付
+    protected $client;
+    public function __construct($obj)
     {
-        $this->appid = $appid;
-        $this->secret = $secret;
-        $this->key = $key;
-        if (!is_array($input)){
-            throw new ApiException('数据格式错误');
-        }
-        if (!array_key_exists('mch_id',$input)){
-            throw new ApiException('缺少统一参数mch_id');
-        }
-        if (!array_key_exists('body',$input)){
-            throw new ApiException('缺少统一参数body');
-        }
-        if (!array_key_exists('out_trade_no',$input)){
-            throw new ApiException('缺少统一参数out_trade_no');
-        }
-        if (!array_key_exists('total_fee',$input)){
-            throw new ApiException('缺少统一参数total_fee');
-        }
-        if (!array_key_exists('notify_url',$input)){
-            throw new ApiException('缺少统一参数notify_url');
-        }
-        $this->data = $input;
-        $this->data['appid'] = $this->appid;
-        $this->data['spbill_create_ip'] = $_SERVER['SERVER_ADDR'];
+        $this->client = $obj;
     }
 
-    public function jsapi_pay(){
-        $data = $this->data;
+    public function jsapiPay(){
+        $data = $this->client->data;
         if (!array_key_exists('openid',$data)){
             throw new ApiException('缺少网页支付参数openid');
         }
-        $data = array_merge($data,array(
-            'nonce_str'=>Helper::createNonceStr(),
-            'trade_type'=>'JSAPI',
-        ));
-        $sign = Helper::MakeSign($data,$this->key);
+        $data['nonce_str'] = Helper::createNonceStr();
+        $data['trade_type'] = 'JSAPI';
+        $sign = Helper::MakeSign($data,$this->client->key);
         $data = array_merge($data,array('sign'=>$sign));
         $data = Helper::ArrayToXml($data);
         $response = Helper::postXmlCurl($data,self::UNIFIED_ORDER_URL);
@@ -66,7 +37,7 @@ class WechatPay
         if($res['return_code'] == "SUCCESS"){  //微信返回成功
             if ($res['result_code'] = 'SUCCESS'){
                 $secondSignData = array(
-                    "appid"=>$this->appid,
+                    "appid"=>$this->client->appid,
                     "noncestr"=>$res['nonce_str'],
                     "package"=>"prepay_id=" . $res['prepay_id'],
                     "timestamp"=>time(),
@@ -82,14 +53,12 @@ class WechatPay
         }
     }
 
-
-    public function app_pay(){
-        $data = $this->data;
-        $data = array_merge($data,array(
-            'nonce_str'=>Helper::createNonceStr(),
-            'trade_type'=>'APP',
-        ));
-        $sign = Helper::MakeSign($data,$this->key);
+    //app支付
+    public function appPay(){
+        $data = $this->client->data;
+        $data['nonce_str'] = Helper::createNonceStr();
+        $data['trade_type'] = 'APP';
+        $sign = Helper::MakeSign($data,$this->client->key);
         $data = array_merge($data,array('sign'=>$sign));
         $data = Helper::ArrayToXml($data);
         $response = Helper::postXmlCurl($data,self::UNIFIED_ORDER_URL);
@@ -97,14 +66,14 @@ class WechatPay
         if($res['return_code'] == "SUCCESS"){  //微信返回成功
             if ($res['result_code'] = 'SUCCESS'){
                 $secondSignData = array(
-                    "appid"=>$this->appid,
+                    "appid"=>$this->client->appid,
                     "noncestr"=>Helper::createNonceStr(),
                     "package"=>"Sign=WXPay",
                     "prepayid"=>$res['prepay_id'],
-                    "partnerid"=>$this->data['mch_id'],
+                    "partnerid"=>$this->client->mch_id,
                     "timestamp"=>time(),
                 );
-                $secondSignData['sign'] = Helper::MakeSign($secondSignData,$this->key);
+                $secondSignData['sign'] = Helper::MakeSign($secondSignData,$this->client->key);
                 return $secondSignData;
             }else{
                 throw new ApiException($res['return_msg'],$res['err_code']);
@@ -113,6 +82,4 @@ class WechatPay
             throw new ApiException($res['return_msg']??'微信服务器错误');
         }
     }
-
-
 }

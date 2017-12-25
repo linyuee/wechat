@@ -68,7 +68,7 @@ $whchat->auth($callback_url,$attach);//$callback_url授权后回调的地址，$
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
 $wechat->setCache($cacheDriver);
-$data = $wechat->get_userinfo_by_code($code);
+$data = $wechat->getUserinfoByCode($code);
 ```
 
 #### 2、jssdk签名
@@ -76,21 +76,23 @@ $data = $wechat->get_userinfo_by_code($code);
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
 $wechat->setCache($cacheDriver);
-$data=$wechat->get_js_sdk_sign('签名的url');
+$data=$wechat->getJsSdkSign('签名的url');
 ```
 
 #### 3、微信支付
 
+##### 1、支付
+
 ```
-$wechat = new \Linyuee\Wechat('appid','secret');
-$input1 = array(  //
+$wechat = new Pay('appid','mch_id','key'); //初始化
+$input1 = array(  //公众号支付参数
             //必须参数
             'mch_id'=>'1900009851',
-            'body'=>'腾讯充值中心-QQ会员充值',
+            'body'=>'腾讯充值中心-QQ会员充值', 
             'out_trade_no'=>random_int(100000,99999999),
             'total_fee'=>10,
             'notify_url'=>'$notify_url',
-            'openid'=>$openid,//发起支付用户的openid
+            'openid'=>'23da2Ar3efD23r1rd12S',//发起支付用户的openid
             //非必须参数
             'device_info'=>'',
             'attach'=>'', //附加数据，回调时会返回
@@ -98,9 +100,9 @@ $input1 = array(  //
             'time_expire'=>'20091227091010',
             'detail'=>'',
             'goods_tag'=>'',
-            'scene_info'=>''         
+            'scene_info'=>''
         );
-$input2 = array(
+        $input2 = array(   //app支付参数
             //必须参数
             'mch_id'=>'1900009851',
             'body'=>'腾讯充值中心-QQ会员充值',
@@ -116,12 +118,35 @@ $input2 = array(
             'goods_tag'=>'',
             'scene_info'=>''
         );
-//公众号支付
-$res = $wechat->pay($input1,$key)->jsapi_pay();//key为商户平台里面的key
-//app支付
-$res = $wechat->pay($input2,$key)->app_pay();
-return $res;
+$res = $wechat->unifiedOrder($input1)->jsapiPay();
+$res = $wechat->unifiedOrder($input2)->appPay();
 ```
+##### 2、查询
+```
+$res = $wechat->query()->OrderByOutTradeNo('10644950');//通过out_trade_no查询订单
+$res = $wechat->query()->OrderByTransactionId('12177525012014070');//通过transaction_id查询订单
+$res = $wechat->query()->refundByOutTradeNo('10644950');//通过out_trade_no查询订单退款
+$res = $wechat->query()->refundByTransactionId('1217752501201407033233368018');//通过transaction_id查询订单退款
+$res = $wechat->query()->refundByOutRefundNo('1217752501201407033233368018');//通过out_refund_no查询订单退款
+$res = $wechat->query()->refundByRefundId('1217752501201407033233368018');//通过refund_id查询订单退款
+```
+##### 3、关闭订单
+```
+
+$res = $wechat->close('10644950');//关闭订单只能通过out_trade_no
+
+```
+
+##### 4、获取数据
+```
+
+$res = $wechat->download()->allOrder('20171111'); //获取2017年11月11日所有的订单
+$res = $wechat->download()->successOrder('20171111');//获取2017年11月11日所有成功的订单
+$res = $wechat->download()->refundOrder('20171111');//获取2017年11月11日所有退款的订单
+$res = $wechat->download()->rechargeRefundOrder('20171111');//获取2017年11月11日充值退款订单（相比其他对账单多一栏“返还手续费”）
+
+```
+
 
 #### 4、自定义公众号菜单
 ```
@@ -141,7 +166,7 @@ $menu = array(
                 ]
             ),
         );
-$wechat->set_menu($menu)
+$wechat->setMenu($menu)
 ```
 如果返回{"errcode":0,"errmsg":"ok"}便是设置成功
 
@@ -150,16 +175,15 @@ $wechat->set_menu($menu)
 ```
 $wechat = new \Linyuee\Wechat('appid','secret');
 $wechat->setCache($cacheDriver);
-$data = $wechat->get_qr_code(12);
+$data = $wechat->getQrcode('id'); //id是带的参数
 ```
 
 #### 6、获取全部关注者的openid
 ```
 $wechat = new Wechat('wxf1f0507020402ba2','6c1344bd51a23b2f2f024f050a89bc77');
 $wechat->setCache($cacheDriver);
-$openids = $wechat->get_users();
+$openids = $wechat->getUsers();//获取全部关注者的openid
 
-$userinfo = $wechat->get_user_info($openid);
 
 ```
 
@@ -168,7 +192,7 @@ $userinfo = $wechat->get_user_info($openid);
 ```
 $wechat = new Wechat('wxf1f0507020402ba2','6c1344bd51a23b2f2f024f050a89bc77');
 $wechat->setCache($cacheDriver);
-$userinfo = $wechat->get_user_info($openid);
+$userinfo = $wechat->getUserInfo($openid);
 
 ```
 #### 8、微信接入和自动回复
@@ -177,8 +201,7 @@ $userinfo = $wechat->get_user_info($openid);
 http:://test.com,然后你在服务器的根目录有一个wechat.php的文件，这时你只需要在wechat.php写入
 该功能暂时没有实现图片和图文连接，后期会支持
 ```
-<?php
-    $response = new \Linyuee\WechatResponse($request->all(),'your_token');
+    $response = new \Linyuee\Message('your_token');
     $response->run();
 
 ```
@@ -186,18 +209,18 @@ http:://test.com,然后你在服务器的根目录有一个wechat.php的文件�
 
 设置关注自动回复：
 ```
-$response = new \Linyuee\WechatResponse($request->all(),'your_token');
-$response->set_welcome_reply('欢迎关注')->run();
+$response = new \Linyuee\WechatResponse('your_token');
+$response->setWelcomeReply('欢迎关注')->run();
 ```
 
 设置按关键字自动回复并且关注自动回复：
 ```
-$response = new WechatResponse($request->all(),'chebao');
+$response = new WechatResponse('chebao');
         $auto_rule = array(       //可以是数组也可以是字符串，如果是字符串的话不管发什么都会回复该字符串
             '你好'=>'很高兴认识你',
             '我要福利'=>'暂时没有福利',
             'test'=>'测试'
         );
-$response->set_welcome_reply('欢迎关注')->set_auto_reply($auto_rule)->run();
+$response->setWelcomeReply('欢迎关注')->setAutoReply($auto_rule)->run();
 ```
 
