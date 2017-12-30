@@ -43,7 +43,7 @@ class Unifiedorder
                     "timestamp"=>time(),
                     "signType"=>'MD5'
                 );
-                $secondSignData['paySign'] = Helper::MakeSign($secondSignData,$this->key);
+                $secondSignData['paySign'] = Helper::MakeSign($secondSignData,$this->client->key);
                 return $secondSignData;
             }else{
                 throw new ApiException($res['return_msg'],$res['err_code']);

@@ -13,6 +13,7 @@ use Linyuee\Exception\ApiException;
 use Linyuee\Payment\Close;
 use Linyuee\Payment\Download;
 use Linyuee\Payment\Query;
+use Linyuee\Payment\Refund;
 use Linyuee\Payment\Unifiedorder;
 use Linyuee\Util\Helper;
 use Mockery\Matcher\Closure;
@@ -62,5 +63,22 @@ class Pay
 
     public function download(){
         return new Download($this);
+    }
+
+    public function refund($input){
+        if (!is_array($input)){
+            throw new ApiException('数据格式错误');
+        }
+        if (!array_key_exists('out_refund_no',$input)){
+            throw new ApiException('缺少参数out_refund_no');
+        }
+        if (!array_key_exists('total_fee',$input)){
+            throw new ApiException('缺少参数total_fee');
+        }
+        if (!array_key_exists('refund_fee',$input)){
+            throw new ApiException('缺少参数refund_fee');
+        }
+        $this->data = $input;
+        return new Refund($this);
     }
 }

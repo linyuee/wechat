@@ -147,6 +147,22 @@ $res = $wechat->download()->rechargeRefundOrder('20171111');//获取2017年11月
 
 ```
 
+##### 5、退款
+微信退款必须申请到证书，并将证书发在服务器上可访问的路径
+```
+
+$data = array(
+       'total_fee'=>'订单金额',
+       'out_refund_no'=>'自定义退款号',
+       'refund_fee'=>'退款金额'
+      );
+$res = $pay->refund($data)->setCert(array(
+        'SSLCERT_PATH'=>'/etc/Cert/wechat/apiclient_cert.pem',
+        'SSLKEY_PATH'=>'/etc/Cert/wechat/apiclient_key.pem'
+      ))->refundByOutTradeNo($params['out_trade_no']);
+
+```
+
 
 #### 4、自定义公众号菜单
 ```
