@@ -10,6 +10,7 @@ namespace Linyuee\Util;
 
 
 
+use App\Logic\Api\ExpressLogic;
 use Linyuee\Exception\ApiException;
 
 class Helper
@@ -199,6 +200,18 @@ class Helper
         if ($unpacked === FALSE)
             $unpacked = $data;
         return $unpacked;
+    }
+
+
+    //获取客户端ip
+    public static function get_client_ip(){
+        $cip = 'unknown';
+        if ($_SERVER['REMOTE_ADDR']){
+            $cip = $_SERVER['REMOTE_ADDR'];
+        }elseif (getenv('REMOTE_ADDR')){
+            $cip = getenv('REMOTE_ADDR');
+        }
+        return $cip;
     }
 
 

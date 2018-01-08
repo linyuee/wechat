@@ -20,7 +20,7 @@ AccessToken 的有效期目前为 7200 秒，有请求次数限制，重复获�
 因此有必要缓存AccessToken，你如果只是测试也可以不使用，我们使用doctrine/cache包作为依赖，在初始化Wechat类
 的时候进行注入，目前的缓存驱动有 file、APC、redis、memcache、memcached、xcache。
 不理解请移步http://blog.csdn.net/wolehao/article/details/17733289
-
+``
 Filesystem
 ```
 $cacheDriver = new \Doctrine\Common\Cache\FilesystemCache('./cacheDir');

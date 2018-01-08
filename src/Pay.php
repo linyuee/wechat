@@ -47,7 +47,7 @@ class Pay
         $this->data = $input;
         $this->data['appid'] = $this->appid;
         $this->data['mch_id'] = $this->mch_id;
-        $this->data['spbill_create_ip'] = $_SERVER['SERVER_ADDR'];
+        $this->data['spbill_create_ip'] = Helper::get_client_ip();
         $unifiedorder = new Unifiedorder($this);
         return $unifiedorder;
     }

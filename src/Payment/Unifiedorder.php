@@ -21,7 +21,7 @@ class Unifiedorder
     {
         $this->client = $obj;
     }
-
+    //公众号支付
     public function jsapiPay(){
         $data = $this->client->data;
         if (!array_key_exists('openid',$data)){
@@ -81,5 +81,29 @@ class Unifiedorder
         }else{
             throw new ApiException($res['return_msg']??'微信服务器错误');
         }
+    }
+    //H5支付
+    public function webPay(){
+        $data = $this->client->data;
+        if (!array_key_exists('scene_info',$data)){
+            throw new ApiException('缺少网页支付参数scene_info');
+        }
+        $data['nonce_str'] = Helper::createNonceStr();
+        $data['trade_type'] = 'MWEB';
+        $sign = Helper::MakeSign($data,$this->client->key);
+        $data = array_merge($data,array('sign'=>$sign));
+        $data = Helper::ArrayToXml($data);
+        $response = Helper::postXmlCurl($data,self::UNIFIED_ORDER_URL);
+        $res =  Helper::XmlToArray($response);
+        if($res['return_code'] == "SUCCESS") {  //微信返回成功
+            if ($res['result_code'] = 'SUCCESS'){
+                return $res['mweb_url'];
+            }else{
+                throw new ApiException($res['return_msg'],$res['err_code']);
+            }
+        }else{
+            throw new ApiException($res['return_msg']??'微信服务器错误');
+        }
+
     }
 }
