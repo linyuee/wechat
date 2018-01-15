@@ -51,6 +51,7 @@ class Refund
         $data = Helper::ArrayToXml($data);
         $response = Helper::postXmlCurl($data,self::REFUND_URL,true,$this->cert);
         $res =  Helper::XmlToArray($response);
+        \Log::info($res);
         return $res;
     }
 

@@ -65,11 +65,13 @@ abstract class WechatBase
           'openid' => 'ogzUjwMevWmSnr__y9aOMVCVvU1g',
           'scope' => 'snsapi_userinfo',)
      */
+
     protected function get_auth_info($code){
         $get_token_url = self::AUTH_INFO_URL .'?appid='.$this->appid
             .'&secret='.$this->secret.'&code='.$code.'&grant_type=authorization_code';
         $res = \Linyuee\Http\HttpHelper::curl($get_token_url);
         $data = json_decode($res->getBody(),true);
+        \Log::info($data);
         if(empty($data['refresh_token'])){
             return false;
         }
@@ -90,8 +92,12 @@ abstract class WechatBase
      * 返回
      */
 
-    protected function get_userinfo($access_token,$openid){
-        $get_user_info_url = self::AUTH_USERINFO_URL.'?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN';
+    protected function get_userinfo($code){
+        $get_token_url = self::AUTH_INFO_URL .'?appid='.$this->appid
+            .'&secret='.$this->secret.'&code='.$code.'&grant_type=authorization_code';
+        $res = \Linyuee\Http\HttpHelper::curl($get_token_url);
+        $data = json_decode($res->getBody(),true);
+        $get_user_info_url = self::AUTH_USERINFO_URL.'?access_token='.$data['access_token'].'&openid='.$data['openid'].'&lang=zh_CN';
         $res = \Linyuee\Http\HttpHelper::curl($get_user_info_url);
         return json_decode($res->getBody(),true);
     }
@@ -134,6 +140,9 @@ abstract class WechatBase
         $token_access_url = self::ACCESS_TOKEN_URL."?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
         $res = file_get_contents($token_access_url); //获取文件内容或获取网络请求的内容
         $result = json_decode($res, true); //接受一个 JSON 格式的字符串并且把它转换为 PHP 变量
+        if (!isset($result['access_token'])&& isset($result['errcode'])){
+            throw new ApiException($result['errmsg']);
+        }
         $access_token = $result['access_token'];
         if ($this->cache){
             $this->cache->save('access_token', $access_token, 7200);

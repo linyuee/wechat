@@ -31,16 +31,18 @@ class Unifiedorder
         $data['trade_type'] = 'JSAPI';
         $sign = Helper::MakeSign($data,$this->client->key);
         $data = array_merge($data,array('sign'=>$sign));
+        \Log::info($data);
         $data = Helper::ArrayToXml($data);
         $response = Helper::postXmlCurl($data,self::UNIFIED_ORDER_URL);
+        \Log::info($response);
         $res = Helper::XmlToArray($response);
         if($res['return_code'] == "SUCCESS"){  //微信返回成功
             if ($res['result_code'] = 'SUCCESS'){
                 $secondSignData = array(
-                    "appid"=>$this->client->appid,
-                    "noncestr"=>$res['nonce_str'],
+                    "appId"=>$this->client->appid,
+                    "nonceStr"=>$res['nonce_str'],
                     "package"=>"prepay_id=" . $res['prepay_id'],
-                    "timestamp"=>time(),
+                    "timeStamp"=>time(),
                     "signType"=>'MD5'
                 );
                 $secondSignData['paySign'] = Helper::MakeSign($secondSignData,$this->client->key);
@@ -62,6 +64,7 @@ class Unifiedorder
         $data = array_merge($data,array('sign'=>$sign));
         $data = Helper::ArrayToXml($data);
         $response = Helper::postXmlCurl($data,self::UNIFIED_ORDER_URL);
+        \Log::info($response);
         $res =  Helper::XmlToArray($response);
         if($res['return_code'] == "SUCCESS"){  //微信返回成功
             if ($res['result_code'] = 'SUCCESS'){

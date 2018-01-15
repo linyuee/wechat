@@ -10,7 +10,7 @@ use Linyuee\Exception\ApiException;
 class Wechat extends WechatBase
 {
 
-    public function __construct($appid,$secret = '')
+    public function __construct($appid,$secret)
     {
         parent::__construct($appid,$secret);
     }
@@ -26,9 +26,7 @@ class Wechat extends WechatBase
 
     public function getUserinfoByCode($code)
     {
-        $auth_info = $this->get_auth_info($code);
-
-        $user_info = $this->get_userinfo($auth_info['access_token'],$auth_info['openid']);
+        $user_info = $this->get_userinfo($code);
         return $user_info;
     }
     //获取js_sdk签名

@@ -1,0 +1,25 @@
+{
+    "name": "linyuee/wechat",
+    "description": "一个非常简单的微信开发工具包,集成了微信授权，微信支付，jssdk，公众号消息收发等功能",
+    "version": "1.0.9",
+    "require": {
+        "php": ">=7.0",
+        "linyuee/core": "1.0.*",
+        "doctrine/cache": "^1.6"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Linyuee\\": "src/"
+
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "linyue",
+            "email": "769353695@qq.com"
+        }
+    ]
+}

@@ -31,11 +31,19 @@ class Helper
         $string = self::ToUrlParams($params);
         //签名步骤二：在string后加入KEY
         $string = $string . "&key=".$key;
+        var_dump($string);
         //签名步骤三：MD5加密
         $string = md5($string);
         //签名步骤四：所有字符转为大写
         $result = strtoupper($string);
         return $result;
+    }
+
+    public static function refund_decrypt($str, $key) {
+        $str = base64_decode($str);
+        $key = md5($key);
+        $iv = substr(random_int(100000,999999).'0000000000000000', 0,16);
+        $decrypted = openssl_decrypt($str, 'AES-256-CBC', $key, OPENSSL_ZERO_PADDING, $iv);
     }
 
     /**
@@ -213,6 +221,7 @@ class Helper
         }
         return $cip;
     }
+
 
 
 
