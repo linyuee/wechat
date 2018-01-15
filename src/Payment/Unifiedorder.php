@@ -31,10 +31,8 @@ class Unifiedorder
         $data['trade_type'] = 'JSAPI';
         $sign = Helper::MakeSign($data,$this->client->key);
         $data = array_merge($data,array('sign'=>$sign));
-        \Log::info($data);
         $data = Helper::ArrayToXml($data);
         $response = Helper::postXmlCurl($data,self::UNIFIED_ORDER_URL);
-        \Log::info($response);
         $res = Helper::XmlToArray($response);
         if($res['return_code'] == "SUCCESS"){  //微信返回成功
             if ($res['result_code'] = 'SUCCESS'){
@@ -64,7 +62,6 @@ class Unifiedorder
         $data = array_merge($data,array('sign'=>$sign));
         $data = Helper::ArrayToXml($data);
         $response = Helper::postXmlCurl($data,self::UNIFIED_ORDER_URL);
-        \Log::info($response);
         $res =  Helper::XmlToArray($response);
         if($res['return_code'] == "SUCCESS"){  //微信返回成功
             if ($res['result_code'] = 'SUCCESS'){
