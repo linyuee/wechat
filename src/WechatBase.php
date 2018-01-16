@@ -134,7 +134,6 @@ abstract class WechatBase
     {
         //缓存access_token
         if ($this->cache && $data = $this->cache->fetch('access_token')) {
-            //var_dump($data);
             return $data;
         }
         $token_access_url = self::ACCESS_TOKEN_URL."?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
