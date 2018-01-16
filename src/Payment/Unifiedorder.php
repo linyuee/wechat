@@ -40,7 +40,7 @@ class Unifiedorder
                     "appId"=>$this->client->appid,
                     "nonceStr"=>$res['nonce_str'],
                     "package"=>"prepay_id=" . $res['prepay_id'],
-                    "timeStamp"=>time(),
+                    "timeStamp"=>(string)time(),
                     "signType"=>'MD5'
                 );
                 $secondSignData['paySign'] = Helper::MakeSign($secondSignData,$this->client->key);
