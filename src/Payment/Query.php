@@ -11,19 +11,11 @@ namespace Linyuee\Payment;
 
 use Linyuee\Util\Helper;
 
-class Query
+class Query extends PayBase
 {
     const QUERY_ORDER_URL = 'https://api.mch.weixin.qq.com/pay/orderquery';
 
     const QUERY_REFUND_URL = 'https://api.mch.weixin.qq.com/pay/refundquery';
-
-    private $client;
-
-    public function __construct($obj)
-    {
-        $this->client = $obj;
-    }
-
 
 
     //根据out_trade_no查询订单
@@ -59,10 +51,7 @@ class Query
             'nonce_str'=>Helper::createNonceStr(),
         );
         $data = array_merge($data,$by);
-        $data['sign'] = Helper::MakeSign($data,$this->client->key);
-        $data = Helper::ArrayToXml($data);
-        $response = Helper::postXmlCurl($data,self::QUERY_ORDER_URL);
-        $res =  Helper::XmlToArray($response);
+        $res = $this->handler($data,self::QUERY_REFUND_URL);
         return $res;
     }
 
@@ -73,10 +62,7 @@ class Query
             'nonce_str'=>Helper::createNonceStr(),
         );
         $data = array_merge($data,$by);
-        $data['sign'] = Helper::MakeSign($data,$this->client->key);
-        $data = Helper::ArrayToXml($data);
-        $response = Helper::postXmlCurl($data,self::QUERY_ORDER_URL);
-        $res =  Helper::XmlToArray($response);
+        $res = $this->handler($data,self::QUERY_REFUND_URL);
         return $res;
     }
 }

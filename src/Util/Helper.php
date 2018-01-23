@@ -37,12 +37,29 @@ class Helper
         $result = strtoupper($string);
         return $result;
     }
-
+    //退款回调数据解密
     public static function refund_decrypt($str, $key) {
         $str = base64_decode($str);
         $key = md5($key);
         $iv = substr(random_int(100000,999999).'0000000000000000', 0,16);
         $decrypted = openssl_decrypt($str, 'AES-256-CBC', $key, OPENSSL_ZERO_PADDING, $iv);
+        return $decrypted;
+    }
+
+
+
+    /**
+     * 移去填充算法
+     * @param string $source
+     * @return string
+     */
+    public function stripPKSC7Padding($source){
+        $source = trim($source);
+        $char = substr($source, -1);
+        $num = ord($char);
+        if($num==62)return $source;
+        $source = substr($source,0,-$num);
+        return $source;
     }
 
     /**

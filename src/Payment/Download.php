@@ -11,16 +11,10 @@ namespace Linyuee\Payment;
 
 use Linyuee\Util\Helper;
 
-class Download
+class Download extends PayBase
 {
     const DOWNLOAD_BILL_URL = 'https://api.mch.weixin.qq.com/pay/downloadbill';//下载账单
 
-    private $client;
-
-    public function __construct($obj)
-    {
-        $this->client = $obj;
-    }
 
     public function allOrder($date,$gzip = false){
         return $this->download($date,'ALL',$gzip);
@@ -49,9 +43,10 @@ class Download
         if($gzip == true){
             $data['tar_type'] = 'GZIP';
         }
-        $data['sign'] = Helper::MakeSign($data,$this->client->key);
-        $data = Helper::ArrayToXml($data);
-        $response = Helper::postXmlCurl($data,self::DOWNLOAD_BILL_URL);
+        $sign = Helper::MakeSign($data,$this->client->key);
+        $sendData = array_merge($data,array('sign'=>$sign));
+        $sendData = Helper::ArrayToXml($sendData);
+        $response = Helper::postXmlCurl($sendData,self::DOWNLOAD_BILL_URL);
         return $response;
     }
 }

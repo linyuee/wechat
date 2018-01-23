@@ -118,8 +118,10 @@ $input1 = array(  //公众号支付参数
             'goods_tag'=>'',
             'scene_info'=>''
         );
+
 $res = $wechat->unifiedOrder($input1)->jsapiPay();
 $res = $wechat->unifiedOrder($input2)->appPay();
+$res = $wechat->unifiedOrder($input2)->webPay();
 ```
 ##### 2、查询
 ```
@@ -162,6 +164,8 @@ $res = $pay->refund($data)->setCert(array(
       ))->refundByOutTradeNo($params['out_trade_no']);
 
 ```
+
+##### 6、
 
 
 #### 4、自定义公众号菜单

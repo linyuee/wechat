@@ -10,19 +10,15 @@ namespace Linyuee\Payment;
 
 
 use Linyuee\Exception\ApiException;
+use Linyuee\Pay;
 use Linyuee\Util\Helper;
 
-class Refund
+class Refund extends PayBase
 {
 
     const REFUND_URL = 'https://api.mch.weixin.qq.com/secapi/pay/refund';
-    private $client;
     private $by;
     private $cert;
-    public function __construct($obj)
-    {
-        $this->client = $obj;
-    }
 
     public function refundByTranscodeId($transcode_id){
         $this->by = array('transcode_id'=>$transcode_id);
@@ -45,13 +41,7 @@ class Refund
         );
         $data = array_merge($data,$this->by);
         $data = array_merge($data,$this->client->data);
-        $sign = Helper::MakeSign($data,$this->client->key);
-        $data = array_merge($data,array('sign'=>$sign));
-
-        $data = Helper::ArrayToXml($data);
-        $response = Helper::postXmlCurl($data,self::REFUND_URL,true,$this->cert);
-        $res =  Helper::XmlToArray($response);
-        \Log::info($res);
+        $res = $this->handler($data,self::REFUND_URL);
         return $res;
     }
 

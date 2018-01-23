@@ -9,17 +9,14 @@
 namespace Linyuee\Payment;
 
 
+use Linyuee\Exception\ApiException;
 use Linyuee\Util\Helper;
 
-class Close
+class Close extends PayBase
 {
     const CLOSE_ORDER_URL = 'https://api.mch.weixin.qq.com/pay/closeorder';//关闭订单
 
-    private $client;
-    public function __construct($obj)
-    {
-        $this->client = $obj;
-    }
+
 
     public function close_order($out_trade_no){
         $data = array(
@@ -28,10 +25,16 @@ class Close
             'nonce_str'=>Helper::createNonceStr(),
             'out_trade_no'=>$out_trade_no
         );
-        $data['sign'] = Helper::MakeSign($data,$this->client->key);
-        $data = Helper::ArrayToXml($data);
-        $response = Helper::postXmlCurl($data,self::CLOSE_ORDER_URL);
-        $res =  Helper::XmlToArray($response);
-        return $res;
+        $res = $this->handler($data,self::CLOSE_ORDER_URL);
+        if($res['return_code'] == "SUCCESS"){  //微信返回成功
+            if ($res['result_code'] == 'SUCCESS'){
+                return true;
+            }else{
+                throw new ApiException($res['return_msg'],$res['err_code']);
+            }
+        }else{
+            throw new ApiException($res['return_msg']??'微信服务器错误');
+        }
+
     }
 }
