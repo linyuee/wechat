@@ -51,7 +51,7 @@ class Query extends PayBase
             'nonce_str'=>Helper::createNonceStr(),
         );
         $data = array_merge($data,$by);
-        $res = $this->handler($data,self::QUERY_REFUND_URL);
+        $res = $this->handler($data,self::QUERY_ORDER_URL);
         return $res;
     }
 
