@@ -13,14 +13,14 @@ trait CacheTrait
     /**
      * 设置缓存驱动.
      */
-    public function setCache(Cache $cache)
+    protected function setCache(Cache $cache)
     {
         $this->cache = $cache;
     }
     /**
      * 获取缓存驱动.
      */
-    public function getCache()
+    protected function getCache()
     {
         return $this->cache;
     }

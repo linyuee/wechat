@@ -5,59 +5,51 @@ namespace Linyuee;
 
 
 
-use Linyuee\Exception\ApiException;
 
-class Wechat extends WechatBase
+use Linyuee\Exception\ApiException;
+use Linyuee\Mp\Auth;
+use Linyuee\Mp\Menu;
+use Linyuee\Mp\User;
+
+class Wechat
 {
 
-    public function __construct($appid,$secret)
+    private $appid;
+    private $secret;
+    private $cache;
+    public function __construct($appid, $secret, \Doctrine\Common\Cache\Cache $cache = null)
     {
-        parent::__construct($appid,$secret);
+        $this->appid = $appid;
+        $this->secret = $secret;
+        $this->cache = $cache;
     }
 
-    public function auth($redirect_url,$state = null){
-        return parent::userinfo_auth($redirect_url,$state);
+    public function auth(){
+        return new Auth($this);
     }
 
-    public function baseAuth($redirect_url,$state = null)
+    public function menu(){
+        return new Menu($this);
+    }
+
+    public function user(){
+        return new User($this);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAppid()
     {
-        return parent::base_auth($redirect_url,$state);
+        return $this->appid;
     }
 
-    public function getUserinfoByCode($code)
-    {
-        $user_info = $this->get_userinfo($code);
-        return $user_info;
-    }
-    //获取js_sdk签名
-    public function getJsSdkSign($url){
-        return $this->js_sdk_sign($url);
-    }
-    //设置公众号菜单
-    public function setMenu($menu)
-    {
-        if (!is_array($menu)){
-            throw new ApiException('参数必须为数组');
-        }
-        $menu = json_encode($menu,JSON_UNESCAPED_UNICODE);//不转义中文
-        return parent::set_menu($menu);
+    public function getSecret(){
+        return $this->secret;
     }
 
-    //生成带参数二维码
-    public function getQrcode($id)
-    {
-        return parent::get_qr_code($id);
-    }
-
-
-    public function getUsers()
-    {
-        return json_decode(parent::get_users(),true);
-    }
-
-
-    public function getUserInfo($openid){
-        return parent::get_user_info($openid);
+    public function getCache(){
+        return $this->cache;
     }
 
 

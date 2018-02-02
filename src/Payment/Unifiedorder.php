@@ -88,4 +88,12 @@ class Unifiedorder extends PayBase
         }
 
     }
+
+    public function qrcodePay(){
+        $data = $this->client->data;
+        $data['nonce_str'] = Helper::createNonceStr();
+        $data['trade_type'] = 'NATIVE';
+        $res = $this->handler($data,self::UNIFIED_ORDER_URL);
+        var_dump($res);
+    }
 }

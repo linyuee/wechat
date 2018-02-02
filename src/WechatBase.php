@@ -231,6 +231,7 @@ abstract class WechatBase
         return $get_url;
     }
 
+
     public function get_users(){
         $access_token = $this->get_access_token();
         $url = "https://api.weixin.qq.com/cgi-bin/user/get?access_token=".$access_token;
