@@ -94,6 +94,14 @@ class Unifiedorder extends PayBase
         $data['nonce_str'] = Helper::createNonceStr();
         $data['trade_type'] = 'NATIVE';
         $res = $this->handler($data,self::UNIFIED_ORDER_URL);
-        var_dump($res);
+        if($res['return_code'] == "SUCCESS") {  //微信返回成功
+            if ($res['result_code'] == 'SUCCESS'){
+                return $res['code_url'];
+            }else{
+                throw new ApiException($res['return_msg'],$res['err_code']);
+            }
+        }else{
+            throw new ApiException($res['return_msg']??'微信服务器错误');
+        }
     }
 }
