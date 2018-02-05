@@ -57,25 +57,23 @@ $cacheDriver = new \Doctrine\Common\Cache\RedisCache();
 $cacheDriver->setRedis($redis);
 
 ```
-
+$cacheDriver在\Linyuee\Wechat类初始化的时候进行注入，测试可以忽略，但是每次都会去获取新的access_token
 #### 1、微信授权
 
 ```
-$wechat = new \Linyuee\Wechat('appid','secret');
+$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
 $whchat->auth($callback_url,$attach);//$callback_url授权后回调的地址，$state你自己附加的参数，会在回调的时候传回去，可填可不填
 ```
 然后你需要在回调接口获取用户信息,并接收微信服务器发送的$code和$state
 ```
-$wechat = new \Linyuee\Wechat('appid','secret');
-$wechat->setCache($cacheDriver);
+$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
 $data = $wechat->getUserinfoByCode($code);
 ```
 
 #### 2、jssdk签名
 
 ```
-$wechat = new \Linyuee\Wechat('appid','secret');
-$wechat->setCache($cacheDriver);
+$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
 $data=$wechat->getJsSdkSign('签名的url');
 ```
 
@@ -170,8 +168,7 @@ $res = $pay->refund($data)->setCert(array(
 
 #### 4、自定义公众号菜单
 ```
-$wechat = new \Linyuee\Wechat('appid','secret');
-$wechat->setCache($cacheDriver);
+$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
 $menu = array(
             'button'=>array(
                 [
@@ -193,15 +190,13 @@ $wechat->setMenu($menu)
 
 #### 5、生成带参数公众号二维码
 ```
-$wechat = new \Linyuee\Wechat('appid','secret');
-$wechat->setCache($cacheDriver);
+$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver)
 $data = $wechat->getQrcode('id'); //id是带的参数
 ```
 
 #### 6、获取全部关注者的openid
 ```
-$wechat = new Wechat('wxf1f0507020402ba2','6c1344bd51a23b2f2f024f050a89bc77');
-$wechat->setCache($cacheDriver);
+$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
 $openids = $wechat->getUsers();//获取全部关注者的openid
 
 
@@ -210,8 +205,7 @@ $openids = $wechat->getUsers();//获取全部关注者的openid
 #### 7、根据openid获取用户信息
 
 ```
-$wechat = new Wechat('wxf1f0507020402ba2','6c1344bd51a23b2f2f024f050a89bc77');
-$wechat->setCache($cacheDriver);
+$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
 $userinfo = $wechat->getUserInfo($openid);
 
 ```
@@ -221,8 +215,8 @@ $userinfo = $wechat->getUserInfo($openid);
 http:://test.com,然后你在服务器的根目录有一个wechat.php的文件，这时你只需要在wechat.php写入
 该功能暂时没有实现图片和图文连接，后期会支持
 ```
-    $response = new \Linyuee\Message('your_token');
-    $response->run();
+$response = new \Linyuee\Message('your_token');
+$response->run();
 
 ```
 然后url便填写http:://test.com/wechat.php,token填写你在php中填写的token就可以了。
