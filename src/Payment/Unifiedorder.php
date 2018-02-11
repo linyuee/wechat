@@ -5,10 +5,10 @@
  * Date: 2017/12/22
  * Time: 下午6:22
  */
-namespace Linyuee\Payment;
+namespace Linyuee\Wechat\Payment;
 
-use Linyuee\Exception\ApiException;
-use Linyuee\Util\Helper;
+use Linyuee\Wechat\Util\Exception\ApiException;
+use Linyuee\Wechat\Util\Helper;
 
 class Unifiedorder extends PayBase
 {
@@ -94,6 +94,7 @@ class Unifiedorder extends PayBase
         $data['nonce_str'] = Helper::createNonceStr();
         $data['trade_type'] = 'NATIVE';
         $res = $this->handler($data,self::UNIFIED_ORDER_URL);
+        \Log::info($res);
         if($res['return_code'] == "SUCCESS") {  //微信返回成功
             if ($res['result_code'] == 'SUCCESS'){
                 return $res['code_url'];

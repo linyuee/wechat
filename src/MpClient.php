@@ -1,17 +1,17 @@
 <?php
 
-namespace Linyuee;
+namespace Linyuee\Wechat;
 
 
 
 
 
 use Linyuee\Exception\ApiException;
-use Linyuee\Mp\Auth;
-use Linyuee\Mp\Menu;
-use Linyuee\Mp\User;
+use Linyuee\Wechat\Mp\Auth;
+use Linyuee\Wechat\Mp\Menu;
+use Linyuee\Wechat\Mp\User;
 
-class Wechat
+class MpClient
 {
 
     private $appid;

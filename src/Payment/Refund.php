@@ -6,12 +6,11 @@
  * Time: 下午7:56
  */
 
-namespace Linyuee\Payment;
+namespace Linyuee\Wechat\Payment;
 
 
-use Linyuee\Exception\ApiException;
-use Linyuee\Pay;
-use Linyuee\Util\Helper;
+use Linyuee\Wechat\Util\Exception\ApiException;
+use Linyuee\Wechat\Util\Helper;
 
 class Refund extends PayBase
 {

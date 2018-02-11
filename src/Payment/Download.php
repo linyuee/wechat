@@ -6,10 +6,11 @@
  * Time: 上午11:56
  */
 
-namespace Linyuee\Payment;
+namespace Linyuee\Wechat\Payment;
 
 
-use Linyuee\Util\Helper;
+
+use Linyuee\Wechat\Util\Helper;
 
 class Download extends PayBase
 {

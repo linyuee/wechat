@@ -6,10 +6,10 @@
  * Time: 上午11:15
  */
 
-namespace Linyuee\Mp;
+namespace Linyuee\Wechat\Mp;
 
 
-use Linyuee\Util\Helper;
+use Linyuee\Wechat\Util\Helper;
 
 class Menu extends Base
 {

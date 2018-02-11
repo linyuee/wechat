@@ -6,19 +6,18 @@
  * Time: 下午6:28
  */
 
-namespace Linyuee;
+namespace Linyuee\Wechat;
 
 
 use Linyuee\Exception\ApiException;
-use Linyuee\Payment\Close;
-use Linyuee\Payment\Download;
-use Linyuee\Payment\Query;
-use Linyuee\Payment\Refund;
-use Linyuee\Payment\Unifiedorder;
-use Linyuee\Util\Helper;
-use Mockery\Matcher\Closure;
+use Linyuee\Wechat\Payment\Close;
+use Linyuee\Wechat\Payment\Download;
+use Linyuee\Wechat\Payment\Query;
+use Linyuee\Wechat\Payment\Refund;
+use Linyuee\Wechat\Payment\Unifiedorder;
+use Linyuee\Wechat\Util\Helper;
 
-class Pay
+class PayClient
 {
     public $data;
     public function __construct($appid,$mch_id,$key)

@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-namespace Linyuee\Util\Http;
+namespace Linyuee\Wechat\Util\Http;
 
 
 

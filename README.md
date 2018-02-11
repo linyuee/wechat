@@ -57,32 +57,106 @@ $cacheDriver = new \Doctrine\Common\Cache\RedisCache();
 $cacheDriver->setRedis($redis);
 
 ```
-$cacheDriver在\Linyuee\Wechat类初始化的时候进行注入，测试可以忽略，但是每次都会去获取新的access_token
+
+
+### 一、公众号开发
+
+####初始化客户端
+
+$cacheDriver在\Linyuee\Wechat类初始化的时候进行注入，用来缓存access_token，如果不注入也可以运行，但是每次都会去获取新的access_token
+```angular2html
+$wechat = new \Linyuee\WechatClient('appid','secret',$cacheDriver);
+```
 #### 1、微信授权
 
 ```
-$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
-$whchat->auth($callback_url,$attach);//$callback_url授权后回调的地址，$state你自己附加的参数，会在回调的时候传回去，可填可不填
+$whchat->auth()->base($callback_url,$attach);//$callback_url授权后回调的地址，$state你自己附加的参数，会在回调的时候传回去，可填可不填
 ```
 然后你需要在回调接口获取用户信息,并接收微信服务器发送的$code和$state
 ```
-$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
 $data = $wechat->getUserinfoByCode($code);
 ```
 
 #### 2、jssdk签名
 
 ```
-$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
 $data=$wechat->getJsSdkSign('签名的url');
 ```
+#### 3、用户管理
 
-#### 3、微信支付
+根据openid获取用户信息
+```angular2html
+$res = $wechat->user()->getUserInfo('ogzUjwMevWmSnr__y9aOMVCVvU1g');
+```
+获取所有用户的openid
+```angular2html
+$res = $wechat->user()->getAllOpenid('ogzUjwMevWmSnr__y9aOMVCVvU1g');
+```
 
-##### 1、支付
+
+#### 4、公众号菜单
+自定义菜单
+```
+$menu = array(
+            'button'=>array(
+                [
+                    'name'=>'公司主页',
+                    'type'=>'view',
+                    'url'=>'http://test.com'
+                ],
+                [
+                    'name'=>'项目主页',
+                    'type'=>'view',
+                    'url'=>'http://test.com/api/test',
+                ]
+            ),
+        );
+$wechat->menu()->setMenu($menu)
+```
+如果返回{"errcode":0,"errmsg":"ok"}便是设置成功
+
+删除菜单
+```angular2html
+$wechat->menu()->deleteMenu($menu)
+```
+#### 5、生成带参数公众号二维码
+```
+$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver)
+$data = $wechat->getQrcode('id'); //id是带的参数
+```
+
+#### 8、微信接入和自动回复
+
+要使用该功能，需要到公众平台配置相关信息，首次启用服务器配置要填一个url和token。假如你的服务器地址为
+http:://test.com,然后你在服务器的根目录有一个wechat.php的文件，这时你只需要在wechat.php写入
+该功能暂时没有实现图片和图文连接，后期会支持
+```
+$response = new \Linyuee\Message('your_token');
+$response->run();
 
 ```
-$wechat = new Pay('appid','mch_id','key'); //初始化
+然后url便填写http:://test.com/wechat.php,token填写你在php中填写的token就可以了。
+
+设置关注自动回复：
+```
+$response = new \Linyuee\WechatResponse('your_token');
+$response->setWelcomeReply('欢迎关注')->run();
+```
+
+设置按关键字自动回复并且关注自动回复：
+```
+$response = new WechatResponse('chebao');
+        $auto_rule = array(       //可以是数组也可以是字符串，如果是字符串的话不管发什么都会回复该字符串
+            '你好'=>'很高兴认识你',
+            '我要福利'=>'暂时没有福利',
+            'test'=>'测试'
+        );
+$response->setWelcomeReply('欢迎关注')->setAutoReply($auto_rule)->run();
+```
+### 支付
+
+```
+$wechat = new PayClient('appid','mch_id','key'); //初始化
 $input1 = array(  //公众号支付参数
             //必须参数
             'mch_id'=>'1900009851',
@@ -162,79 +236,3 @@ $res = $pay->refund($data)->setCert(array(
       ))->refundByOutTradeNo($params['out_trade_no']);
 
 ```
-
-##### 6、
-
-
-#### 4、自定义公众号菜单
-```
-$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
-$menu = array(
-            'button'=>array(
-                [
-                    'name'=>'公司主页',
-                    'type'=>'view',
-                    'url'=>'http://test.com'
-                ],
-                [
-                    'name'=>'项目主页',
-                    'type'=>'view',
-                    'url'=>'http://test.com/api/test',
-                ]
-            ),
-        );
-$wechat->setMenu($menu)
-```
-如果返回{"errcode":0,"errmsg":"ok"}便是设置成功
-
-
-#### 5、生成带参数公众号二维码
-```
-$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver)
-$data = $wechat->getQrcode('id'); //id是带的参数
-```
-
-#### 6、获取全部关注者的openid
-```
-$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
-$openids = $wechat->getUsers();//获取全部关注者的openid
-
-
-```
-
-#### 7、根据openid获取用户信息
-
-```
-$wechat = new \Linyuee\Wechat('appid','secret',$cacheDriver);
-$userinfo = $wechat->getUserInfo($openid);
-
-```
-#### 8、微信接入和自动回复
-
-要使用该功能，需要到公众平台配置相关信息，首次启用服务器配置要填一个url和token。假如你的服务器地址为
-http:://test.com,然后你在服务器的根目录有一个wechat.php的文件，这时你只需要在wechat.php写入
-该功能暂时没有实现图片和图文连接，后期会支持
-```
-$response = new \Linyuee\Message('your_token');
-$response->run();
-
-```
-然后url便填写http:://test.com/wechat.php,token填写你在php中填写的token就可以了。
-
-设置关注自动回复：
-```
-$response = new \Linyuee\WechatResponse('your_token');
-$response->setWelcomeReply('欢迎关注')->run();
-```
-
-设置按关键字自动回复并且关注自动回复：
-```
-$response = new WechatResponse('chebao');
-        $auto_rule = array(       //可以是数组也可以是字符串，如果是字符串的话不管发什么都会回复该字符串
-            '你好'=>'很高兴认识你',
-            '我要福利'=>'暂时没有福利',
-            'test'=>'测试'
-        );
-$response->setWelcomeReply('欢迎关注')->setAutoReply($auto_rule)->run();
-```
-

@@ -6,12 +6,12 @@
  * Time: 下午3:32
  */
 
-namespace Linyuee\Mp;
+namespace Linyuee\Wechat\Mp;
 
 
 use Linyuee\Cache\CacheTrait;
 use Linyuee\Exception\ApiException;
-use Linyuee\Wechat;
+use Linyuee\Wechat\MpClient;
 
 class Base
 {
@@ -20,7 +20,7 @@ class Base
     protected $secret;
     const ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token';
 
-    public function __construct(Wechat $client)
+    public function __construct(MpClient $client)
     {
         $this->appid = $client->getAppid();
         $this->secret = $client->getSecret();
@@ -34,7 +34,6 @@ class Base
         //缓存access_token
 
         if ($this->cache && $data = $this->cache->fetch('access_token')) {
-            \Log::info($data);
             return $data;
         }
         $token_access_url = self::ACCESS_TOKEN_URL."?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
@@ -59,6 +58,13 @@ class Base
             }
         }
         return $result;
+    }
+
+    public function refresh($result,$function,$params = null){
+        return function () use ($result,$function,$params){
+            callback($function);
+
+        };
     }
 
 }

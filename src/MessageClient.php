@@ -6,10 +6,10 @@
  * Time: 下午7:53
  */
 
-namespace Linyuee;
+namespace Linyuee\Wechat;
 
 
-class Message
+class MessageClient
 {
     protected $input;
     protected $token;

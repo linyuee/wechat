@@ -6,11 +6,11 @@
  * Time: 上午11:24
  */
 
-namespace Linyuee\Payment;
+namespace Linyuee\Wechat\Payment;
 
 
-use Linyuee\Exception\ApiException;
-use Linyuee\Util\Helper;
+use Linyuee\Wechat\Util\Exception\ApiException;
+use Linyuee\Wechat\Util\Helper;
 
 class Close extends PayBase
 {

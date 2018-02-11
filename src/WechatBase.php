@@ -6,7 +6,7 @@
  * Time: 下午4:31
  */
 
-namespace Linyuee;
+namespace Linyuee\Wechat;
 
 use Linyuee\Cache\CacheTrait;
 use Linyuee\Exception\ApiException;

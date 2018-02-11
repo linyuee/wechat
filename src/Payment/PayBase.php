@@ -6,17 +6,17 @@
  * Time: 下午4:21
  */
 
-namespace Linyuee\Payment;
+namespace Linyuee\Wechat\Payment;
 
 
-use Linyuee\Pay;
-use Linyuee\Util\Helper;
+use Linyuee\Wechat\PayClient;
+use Linyuee\Wechat\Util\Helper;
 
 abstract class PayBase
 {
     protected $client;
 
-    public function __construct(Pay $obj)
+    public function __construct(PayClient $obj)
     {
         $this->client = $obj;
     }

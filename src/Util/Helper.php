@@ -6,7 +6,7 @@
  * Time: 下午3:45
  */
 
-namespace Linyuee\Util;
+namespace Linyuee\Wechat\Util;
 
 
 
@@ -192,7 +192,6 @@ class Helper
         $output = curl_exec($curl);
         list($header, $body) = explode("\r\n\r\n", $output, 2);
         curl_close($curl);
-
         return $body;
     }
 
