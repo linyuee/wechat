@@ -9,8 +9,9 @@
 namespace Linyuee\Wechat\Payment;
 
 
-use Linyuee\Wechat\Util\Exception\ApiException;
-use Linyuee\Wechat\Util\Helper;
+use Linyuee\Exception\ApiException;
+use Linyuee\Pay;
+use Linyuee\Util\Helper;
 
 class Refund extends PayBase
 {
@@ -40,7 +41,11 @@ class Refund extends PayBase
         );
         $data = array_merge($data,$this->by);
         $data = array_merge($data,$this->client->data);
-        $res = $this->handler($data,self::REFUND_URL);
+        $sign = Helper::MakeSign($data,$this->client->key);
+        $sendData = array_merge($data,array('sign'=>$sign));
+        $sendData = Helper::ArrayToXml($sendData);
+        $response = Helper::postXmlCurl($sendData,self::REFUND_URL,true,$this->getCert());
+        $res = Helper::XmlToArray($response);
         return $res;
     }
 
@@ -56,6 +61,13 @@ class Refund extends PayBase
         }
         $this->cert = $cert;
         return $this;
+    }
+
+    public function getCert(){
+        if (empty($this->cert)){
+            throw new ApiException('没有设置证书');
+        }
+        return $this->cert;
     }
 
 }
