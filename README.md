@@ -63,9 +63,9 @@ $cacheDriver->setRedis($redis);
 
 ####初始化客户端
 
-$cacheDriver在\Linyuee\Wechat类初始化的时候进行注入，用来缓存access_token，如果不注入也可以运行，但是每次都会去获取新的access_token
+$cacheDriver在\Linyuee\Wechat\MpClient类初始化的时候进行注入，用来缓存access_token，如果不注入也可以运行，但是每次都会去获取新的access_token
 ```angular2html
-$wechat = new \Linyuee\WechatClient('appid','secret',$cacheDriver);
+$wechat = new \Linyuee\Wechat\MpClient('appid','secret',$cacheDriver);
 ```
 #### 1、微信授权
 
