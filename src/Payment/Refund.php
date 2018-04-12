@@ -10,6 +10,7 @@ namespace Linyuee\Wechat\Payment;
 
 
 use Linyuee\Exception\ApiException;
+use Linyuee\Pay;
 use Linyuee\Util\Helper;
 
 class Refund extends PayBase
