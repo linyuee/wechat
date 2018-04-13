@@ -2,7 +2,7 @@
     "name": "linyuee/wechat",
     "description": "一个非常简单的微信开发工具包,集成了微信授权，微信支付，jssdk，公众号消息收发等功能",
     "keyword":["wechat","pay"],
-    "version": "1.1.3",
+    "version": "1.1.4",
     "require": {
         "php": ">=7.0",
         "doctrine/cache": "^1.6"

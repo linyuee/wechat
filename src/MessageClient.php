@@ -11,10 +11,19 @@ namespace Linyuee\Wechat;
 
 class MessageClient
 {
-    protected $input;
-    protected $token;
-    protected $response;
-    protected $welcome_response;
+    private $input;
+    private $token;
+    private $response;
+    private $welcome_response;
+    private $click_response;
+    private $msgType = 'text';
+    private $qrscene;
+    private $scene_id;
+    private $scan_response;
+    private $latitude; //地理位置纬度
+    private $longitude;  //地理位置经度
+    private $precision; //地理位置精度
+    private $event;
     public function __construct($token)
     {
         $this->input = $_GET;
@@ -38,11 +47,11 @@ class MessageClient
         }
 
         //回复事件或消息
-        $this->reply();
+        $this->handler();
         //return false;
     }
-
-    protected  function reply(){
+    //处理微信服务器推送
+    protected  function handler(){
         //获取到微信推送过来post数据（xml格式）
         //$postArr = $GLOBALS["HTTP_RAW_POST_DATA"];
         $postArr = file_get_contents('php://input');
@@ -50,20 +59,31 @@ class MessageClient
         $toUser   = $postObj->FromUserName;
         $fromUser = $postObj->ToUserName;
         $time     = time();
-        $msgType  =  'text';
-
+        $msgType  =  $this->msgType;
+        $this->event = $postObj->Event;
+        \Log::info($postObj->Event);
+        \Log::info($postObj->EventKey);
         if( $postObj->MsgType == 'event'){ //事件
-//            if( $postObj->Event == 'SCAN' ){
-//                //$EventKey = isset($postObj->EventKey)??null; //带的参数
-//                $content = "欢迎关注";
-//                $info = self::response_text($toUser, $fromUser, $time, $msgType,$content);
-//                echo $info;exit();
-//            }
-            if ($postObj->Event == 'subscribe'){
+
+            if ($postObj->Event == 'subscribe'){  //关注事件
                 if ($this->welcome_response){
+                    $this->qrscene = $postObj->EventKey; //事件KEY值，qrscene_为前缀，后面为二维码的参数值
                     $info = self::responseText($toUser, $fromUser, $time, $msgType,$this->welcome_response);
-                    echo $info;exit();
+                    return $info;
                 }
+            }
+            if ($postObj->Event == 'SCAN'){  //已关注扫码事件
+                $this->scene_id = $postObj->EventKey; //事件KEY值，是一个32位无符号整数，即创建二维码时的二维码scene_id
+                $info = self::responseText($toUser, $fromUser, $time, $msgType,$this->scan_response);
+                return $info;
+            }
+            if ($postObj->Event == 'LOCATION'){  //获取地理位置
+                $this->latitude = $postObj->Latitude;
+                $this->longitude = $postObj->Longitude;
+                $this->precision = $postObj->Precision;
+            }
+            if ($postObj->Event == 'CLICK'){  //点击事件
+
             }
         }elseif ($postObj->MsgType == 'text' && $this->response != null){//消息
             $response = $this->response; //自动回复规则
@@ -71,14 +91,20 @@ class MessageClient
             if (is_array($response)){
                 if (isset($response[(string)$content])){
                     $info = self::responseText($toUser, $fromUser, $time, $msgType,$response[(string)$content]);
-                    echo $info;exit();
+                    return $info;
                 }
             }elseif (is_string($response)){
                 $info = self::responseText($toUser, $fromUser, $time, $msgType,$response);
-                echo $info;exit();
+                return $info;
             }
         }
 
+    }
+
+    //设置扫码
+    public function setScanReply($response){
+        $this->scan_response = $response;
+        return $this;
     }
 
     public function setAutoReply($response){
@@ -91,6 +117,11 @@ class MessageClient
         return $this;
     }
 
+    public function setClickReply($response){
+        $this->click_response = $response;
+        return $this;
+    }
+
     protected static function responseText($toUser, $fromUser, $time, $msgType, $content){
         $template = "<xml>
                             <ToUserName><![CDATA[%s]]></ToUserName>
@@ -100,5 +131,21 @@ class MessageClient
                             <Content><![CDATA[%s]]></Content>
                             </xml> ";
         return sprintf($template, $toUser, $fromUser, $time, $msgType, $content);
+    }
+
+    public function getSceneId(){
+        return $this->scene_id;
+    }
+
+    public function getQrscene(){
+        return $this->qrscene;
+    }
+    //返回地理位置
+    public function getLocation(){
+        return ['latitude'=>$this->latitude,'longitude'=>$this->longitude,'precision'=>$this->precision];
+    }
+
+    public function getEvent(){
+        return $this->event;
     }
 }

@@ -2,38 +2,34 @@
 /**
  * Created by PhpStorm.
  * User: yuelin
- * Date: 2018/1/29
- * Time: 下午3:32
+ * Date: 2018/3/22
+ * Time: 下午4:42
  */
 
 namespace Linyuee\Wechat\Mp;
 
 
 use Linyuee\Cache\CacheTrait;
-use Linyuee\Exception\ApiException;
-use Linyuee\Wechat\MpClient;
+use Linyuee\Wechat\Util\Exception\ApiException;
 
-class Base
+class AccessToken
 {
     use CacheTrait;
-    protected $appid;
-    protected $secret;
+
     const ACCESS_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token';
 
-    public function __construct(MpClient $client)
+    private $appid;
+    private $secret;
+    public function __construct($app_id,$secret,\Doctrine\Common\Cache\Cache $cacheTrait = null)
     {
-        $this->appid = $client->getAppid();
-        $this->secret = $client->getSecret();
-        if (!empty($client->getCache())){
-            $this->setCache($client->getCache());
-        }
+        $this->appid = $app_id;
+        $this->secret = $secret;
     }
-
 
     public function getAccessToken(){
         //缓存access_token
-
         if ($this->cache && $data = $this->cache->fetch('access_token')) {
+            \Log::info($data);
             return $data;
         }
         $token_access_url = self::ACCESS_TOKEN_URL."?grant_type=client_credential&appid=".$this->appid."&secret=".$this->secret;
@@ -48,17 +44,5 @@ class Base
         }
         return $access_token;
     }
-    //access_token过期则删除缓存重新请求
-    public function refreshToken($result,$function,$params = null){
-        $response = json_decode($result,true);
-        if (isset($response['errcode'])){
-            if ($response['errcode'] == 40001 && $this->cache){
-                $this->cache->delete('access_token');
-                return $this->$function($params);
-            }
-        }
-        return $result;
-    }
-
 
 }

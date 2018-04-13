@@ -9,42 +9,49 @@
 namespace Linyuee\Wechat\Mp;
 
 
+use Linyuee\Core\Http\Request;
 use Linyuee\Wechat\Util\Helper;
 
-class Menu extends Base
+class Menu
 {
     const SET_MENU_URL = 'https://api.weixin.qq.com/cgi-bin/menu/create';
     const GET_MENU_URL = 'https://api.weixin.qq.com/cgi-bin/menu/get';
     const DELETE_MENU_URL = 'https://api.weixin.qq.com/cgi-bin/menu/delete';
-    public function set($menu)
+
+    private $access_token;
+    public function __construct(AccessToken $accessToken)
     {
+        $this->access_token = $accessToken->getAccessToken();
+    }
+
+
+
+    public function set($menu){
         $menu = json_encode($menu,JSON_UNESCAPED_UNICODE);//不转义中文
-        $access_token = $this->getAccessToken();
-        $url = self::SET_MENU_URL."?access_token=".$access_token."";
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS,$menu);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($menu))
-        );
-        $response = curl_exec($ch);
-        $this->refreshToken($response,__FUNCTION__,$menu);
-        $response = json_decode($response, true);
-        return $response;
+        $request = new Request();
+        $res = $request->setMethod('POST')
+            ->setRequestUrl(self::SET_MENU_URL)
+            ->setQuery([
+                'access_token'=>$this->access_token
+            ])->setParams($menu)
+            ->send();
+        return json_encode($res,true);
     }
 
     public function get(){
-        $access_token = $this->getAccessToken();
-        $url = self::GET_MENU_URL."?access_token=".$access_token."";
-        //$res = \Linyuee\Util\Http\HttpHelper::get($url);
-        $res = Helper::https_get($url);
-        return json_decode($res,true);
+        $access_token = $this->access_token;
+        $request = new Request();
+        $res = $request
+            ->setMethod('GET')
+            ->setRequestUrl(self::GET_MENU_URL)
+            ->setQuery([
+                'access_token'=>$access_token
+            ])->send();
+        return json_decode($res->getBody(),true);
     }
 
     public function delete(){
-        $access_token = $this->getAccessToken();
+        $access_token = $this->access_token;
         $url = self::DELETE_MENU_URL."?access_token=".$access_token."";
         $res = Helper::https_get($url);
         return json_decode($res,true);

@@ -11,19 +11,26 @@ namespace Linyuee\Wechat\Mp;
 
 use Linyuee\Wechat\Util\Helper;
 
-class Qrcode extends Base
+class Qrcode
 {
     const QRCODE_URL = 'https://api.weixin.qq.com/cgi-bin/qrcode/create';
-    public function get_qr_code($id)
+
+    private $access_token;
+
+    public function __construct(AccessToken $accessToken)
     {
-        $access_token = $this->getAccessToken();
-        $qrcode = '{"action_name": "QR_LIMIT_SCENE", "action_info": {"scene": {"scene_id": '.$id.'}}}';
-        $url = self::QRCODE_URL."?access_token=$access_token";
-        $result = Helper::https_post($url,$qrcode);
-        $this->refreshToken($result,__FUNCTION__,$id);
+        $this->access_token = $accessToken;
+    }
+
+    public function get($id)
+    {
+        $access_token = $this->access_token;
+        $qrcode = '{"action_name": "QR_LIMIT_SCENE", "action_info": {"scene": {"scene_id": ' . $id . '}}}';
+        $url = self::QRCODE_URL . "?access_token=$access_token";
+        $result = Helper::https_post($url, $qrcode);
         $jsoninfo = json_decode($result, true);
         $ticket = $jsoninfo["ticket"];
-        $get_url="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=".urlencode($ticket);
+        $get_url = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" . urlencode($ticket);
         return $get_url;
     }
 }
